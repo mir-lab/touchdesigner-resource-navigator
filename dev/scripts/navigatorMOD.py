@@ -101,6 +101,7 @@ def get_current_example():
 def open_in_browser(qs_results):
     address = webBrowser.par.Address.eval()
     ui.viewFile(address)
+    remove_qs_from_path()
 
 def remove_qs_from_path():
     print("remove QS from Path")
