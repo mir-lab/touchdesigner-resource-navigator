@@ -42,11 +42,15 @@ dispBuffer      = view.op('container_display_buffer')
 
 transTimer      = loadingView.op('timer1')
 
+nav_debug       = NavigatorCOMP.par.Debug
+
 #####################################################
 # functions
 #####################################################
 
 def url_update(url, debug=True):
+    '''Updates webrender TOP URL
+    '''
     qs_result = querry_string_parse(url)
     key_list = [key for key in qs_result.keys()]
 
@@ -69,7 +73,10 @@ def url_update(url, debug=True):
     pass
 
 def open_floating_network(qs_results):
-    print("Open Floating Window")
+    '''Opens Floating Network Window
+    '''
+    if nav_debug.eval():
+        print("Open Floating Window")
 
     floating_pane = ui.panes.createFloating(name="Example")
     current_example = get_current_example()
@@ -80,6 +87,8 @@ def open_floating_network(qs_results):
     pass
 
 def update_td_pars(qs_results):
+    '''Update TD parameters
+    '''
     target_op = get_current_example()
     exempt_keys = ['action', 'actionable']
     for each_par, each_val in qs_results.items():
@@ -90,31 +99,45 @@ def update_td_pars(qs_results):
                 target_op.par[each_par] = each_val[0]
             except Exception as e:
                 pass
-        print(each_par, each_val)
+        if nav_debug.eval():
+            debug(each_par, each_val)
+
     remove_qs_from_path()
     pass
 
 def get_current_example():
+    '''Get current example
+    '''
     current_example = parent.Navigator.op('container_ui/container_view/container_display_buffer').findChildren(depth=1)[0]
     return current_example
 
 def open_in_browser(qs_results):
+    '''Open URL in web browser
+    '''
     address = webBrowser.par.Address.eval()
     ui.viewFile(address)
     remove_qs_from_path()
 
 def remove_qs_from_path():
-    print("remove QS from Path")
+    '''Remove query string from URL path
+    '''
+    if nav_debug.eval():
+        debug("remove QS from Path")
 
     address = webBrowser.par.Address.eval()
     cleanAddress = clean_url(address)
     webBrowser.par.Address = cleanAddress
  
 def clean_url(url):
+    '''Clean up a URL
+    '''
     return urllib.parse.urljoin(url, urllib.parse.urlparse(url).path)
 
 def load_tox(qs_results):
-    print("loading remote")
+    '''Load TOX from URL
+    '''
+    if nav_debug.eval():
+        debug("loading remote")
 
     remote_tox = qs_results.get('remotePath')
     NavigatorCOMP.store('selectedRemoteTox', remote_tox[0])
@@ -123,28 +146,39 @@ def load_tox(qs_results):
     pass
 
 def load_new_selection():
-    print("loading new selection")
+    '''Load selection
+    '''
+    if nav_debug.eval():
+        debug("loading new selection")
 
     loadingView.par['display'] = True
     display_loading_screen()
 
 def display_loading_screen():
-    print("starting timer")
+    '''Display loading screen during load
+    '''
+    if nav_debug.eval():
+        debug("starting timer")
 
+    transTimer.par.active = True
     transTimer.par.start.pulse()
 
 def update_browser():
+    '''Update webrender TOP / Web Browser
+    '''
     url = NavigatorCOMP.fetch('selectedWebPage')
     webBrowser.par['Address'] = url
 
 def load_remote_tox():
+    '''Load Remoate TOX
+    '''
     remoteTox = NavigatorCOMP.fetch('selectedRemoteTox')
 
     try:
 
-        asset 	    = urllib.request.urlopen(remoteTox)
-        tox 	    = asset.read()
-        loadedTox   = dispBuffer.loadByteArray(tox)
+        asset = urllib.request.urlopen(remoteTox)
+        tox = asset.read()
+        loadedTox = dispBuffer.loadByteArray(tox)
         loadedTox.par['display'] = True
         loadedTox.nodeX = 0
         loadedTox.nodeY = 0
@@ -153,28 +187,49 @@ def load_remote_tox():
         update_browser()
 
     except Exception as e:
-        print(e)
+        if nav_debug.eval():
+            debug(e)
+        else:
+            pass
 
 def clear_view():
+    '''Clear display buffer of any ops
+    '''
     for each in dispBuffer.findChildren(depth=1):
         each.destroy()
 
 def set_timer_play(playVal):
+    '''Start timer's play 
+    '''
     transTimer.par['play'] = playVal
 
 def toggle_settings():
+    '''Toggle display par for settings
+    '''
     settingsView.par.display = (0 if settingsView.par.display else 1)
 
 def querry_string_parse(url):
+    '''Parse querry string
+    '''
     parse_result = urllib.parse.urlparse(url).query
     qs_result = urllib.parse.parse_qs(parse_result)
     return qs_result
+
+def navigator_reset():
+    clear_view()
+    default = parent.Navigator.op('container_ui/container_view/container_loading/container_start')
+    copy_op = dispBuffer.copy(default)
+    copy_op.nodeX = 0
+    copy_op.nodeY = 0
+    copy_op.par.display = True
 
 #####################################################
 ## Timer Functions
 #####################################################
 
 def timer_segment_enter(**kwargs):
+    '''timer onSegmentEnter callback
+    '''
     timerOp = kwargs.get('timerOp')
     segment = kwargs.get('segment')
     interrupt = kwargs.get('interrupt')
@@ -186,6 +241,9 @@ def timer_segment_enter(**kwargs):
         timerOp.par.play = True
 
 def on_timer_done(**kwargs):
+    '''timer onDone callback
+    '''
     loadingView.par['display'] = False
+    kwargs.get('timerOp').par.active = False
     pass
 
