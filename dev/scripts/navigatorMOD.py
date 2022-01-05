@@ -222,6 +222,8 @@ def navigator_reset():
     copy_op.nodeX = 0
     copy_op.nodeY = 0
     copy_op.par.display = True
+    copy_op.par.opacity = 1
+    copy_op.par.Text = "Navigator"
 
 #####################################################
 ## Timer Functions
