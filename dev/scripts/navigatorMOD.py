@@ -3,6 +3,7 @@
 #####################################################
 
 import urllib
+import webbrowser
 import requests
 
 #####################################################
@@ -70,6 +71,11 @@ def url_update(url, debug=True):
     else:
         pass
 
+    pass
+
+def on_load():
+    webBrowser.par.Javascript = "document.getElementsByClassName('td-navigator-shown')[0].classList.remove('td-navigator-shown')"
+    run('parent.Navigator.op("container_ui/container_nav_and_text").op("webBrowser").par.Sendjavascript.pulse()')
     pass
 
 def open_floating_network(qs_results):
