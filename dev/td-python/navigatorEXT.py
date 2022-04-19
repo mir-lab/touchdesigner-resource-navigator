@@ -1,4 +1,4 @@
-import urllib
+import urllib.request
 
 #####################################################
 # action spec
@@ -114,6 +114,26 @@ class NavController:
             pass
 
         pass
+
+    def Zoom_update(self, zoom_level):
+        '''
+        Update web render zoom level
+
+        Args
+        ---------------
+        zoom_level (int)
+        > The target zoom level for the webrender TOP
+        '''
+        print(f"document.body.style.zoom = '{zoom_level}%'")
+        NavController.web_browser.op('webrender1').executeJavaScript(f"document.body.style.zoom = '{zoom_level}%'")
+
+    def Zoom_increment(self, increment_val):
+        prev_val = NavController.NavigatorCOMP.par.Webrenderzoom.eval()
+        NavController.NavigatorCOMP.par.Webrenderzoom = increment_val + prev_val
+    
+    def Zoom_reset(self, val):
+        print("zoom reset")
+        NavController.NavigatorCOMP.par.Webrenderzoom = val
 
     def get_current_example(self):
         '''
