@@ -2,7 +2,7 @@ from datetime import datetime
 
 build_destination = "../release"
 build_name = "td_navigator"
-build_version = "0.0.5"
+build_version = str("0.0.51")
 build_log = op('text_build_log')
 build_buffer = op('/sys/quiet')
 
@@ -69,7 +69,7 @@ def build():
     turn_off_sync_and_clear_file_DATs(external_ops)
 
     # set version info
-    version(tox_version=str(build_version), target_tox=tox_copy)
+    version(tox_version=build_version, target_tox=tox_copy)
 
     output_file = f"{tdu.expandPath(build_destination)}/{build_name}.tox"
     tox_copy.save(output_file, createFolders=True)
