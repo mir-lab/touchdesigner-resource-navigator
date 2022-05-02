@@ -70,6 +70,7 @@ class NavController:
     NavigatorCOMP   = parent.Navigator
     NavigatorCOMP = parent.Navigator
     view = parent.Navigator.op('container_ui/container_view')
+    nav_and_text = parent.Navigator.op('container_ui/container_nav_and_text')
     web_browser = parent.Navigator.op('container_ui/container_nav_and_text/webBrowser')
     loading_view = parent.Navigator.op('container_ui/container_view/container_loading')
     settings_view = parent.Navigator.op('container_ui/container_view/container_settings')
@@ -77,6 +78,9 @@ class NavController:
     trans_timer = parent.Navigator.op('container_ui/container_view/container_loading/timer1')
 
     nav_debug = parent.Navigator.par.Debug
+
+    nav_header = parent.Navigator.op('base_assets/Navigator')
+    nav_example_header = parent.Navigator.op('base_assets/NavigatorExample')
 
     def __init__(self, ownerOp):
         '''
@@ -92,6 +96,7 @@ class NavController:
         
         self.Owner_op = ownerOp
         self.selected_remote_tox = None
+        self._check_pane_assets()
 
     def Url_update(self, url):
         '''
@@ -304,6 +309,117 @@ class NavController:
         NavController.web_browser.par.Javascript = "document.getElementsByClassName('td-navigator-shown')[0].classList.remove('td-navigator-shown')"
         run('parent.Navigator.op("container_ui/container_nav_and_text").op("webBrowser").par.Sendjavascript.pulse()')
         pass
+
+
+    def Floating_window(self, par):
+        par_val = par.eval()
+        print(par_val)
+
+        navigator_open = self._navigator_open
+        print(f"navigator open | {navigator_open}")
+        if navigator_open:
+            ui.panes['Navigator'].close()
+            ui.panes['NavigatorExample'].close()
+
+        else:
+            nav_text = ui.panes.createFloating()
+            nav_text.owner = NavController.nav_and_text
+            nav_text.name = NavController.nav_header.name
+
+            tox_example = nav_text.splitRight()
+            tox_example.owner = NavController.view
+            tox_example.name = NavController.nav_example_header.name
+
+            nav_text.changeType(PaneType.PANEL)
+            tox_example.changeType(PaneType.PANEL)
+            pass
+
+    @property
+    def _pane_names(self):
+        return [each_op.name for each_op in op('/ui/panes/panebar').findChildren(type=containerCOMP)]
+    
+    @property
+    def _navigator_open(self):
+        return NavController.nav_header.name in [each.name for each in ui.panes]
+
+    def _check_pane_assets(self):
+        nav_header_present = NavController.nav_header.name in self._pane_names
+        nav_example_header_present =  NavController.nav_example_header.name in self._pane_names
+
+        # copy nav and nav_example headers if they don't exist in pane assets
+        if nav_header_present:
+            if parent.Navigator.par.Debug:
+                debug("nav_header already exists")
+            pass
+        else:
+            self._copy_pane_asset(NavController.nav_header, 0, -200)
+
+        if nav_example_header_present:
+            if parent.Navigator.par.Debug:
+                debug("nav_example_header already exists")
+            pass
+        else:
+            self._copy_pane_asset(NavController.nav_example_header, 200, -200)
+
+    def _copy_pane_asset(self, asset, nodeX, nodeY):
+        print(f"copying asset {asset}")
+        new_pane_asset = op('/ui/panes/panebar').copy(asset)
+        new_pane_asset.nodeX = nodeX
+        new_pane_asset.nodeY = nodeY
+
+    #####################################################
+    ## PANE CONTROLS
+    #####################################################
+
+    def Save_tox_copy(self, par):
+        if par.eval():
+            print("Save TOX copy")
+
+            disp_buffer = NavController.disp_buffer
+            current_example = disp_buffer.findChildren(type=containerCOMP)[0]
+            save_ready_tox = self._copy_current_example(current_example)
+
+            tox_path = ui.chooseFile(
+                load=False, 
+                start=f"{current_example}.tox", 
+                fileTypes=['tox'], 
+                title='Save Current TOX')
+            
+
+            # set hmode, vmode, width, and height for containers
+            if save_ready_tox.type == 'container':
+                save_ready_tox.par.hmode = 0
+                save_ready_tox.par.vmode = 0
+                save_ready_tox.par.w = 1080
+                save_ready_tox.par.h = 1080
+            else:
+                pass
+
+            save_ready_tox.save(tox_path)
+            save_ready_tox.destroy()
+
+    def Set_view(self, par, view_type):
+        if par.eval():
+            example_pane = ui.panes['NavigatorExample']
+
+            if view_type == 'panel':
+                example_pane.owner = NavController.view
+                example_pane.changeType(PaneType.PANEL)
+
+            elif view_type == 'network':
+                current_example = NavController.disp_buffer.findChildren(type=containerCOMP)[0]
+                example_pane.owner = current_example
+                example_pane.changeType(PaneType.NETWORKEDITOR)
+                ui.panes['NavigatorExample'].home()
+
+            else:
+                pass        
+
+    def _copy_current_example(self, example):
+        copied_tox = op('/sys/quiet').copy(example)
+        copied_tox.nodeX = 0
+        copied_tox.nodeY = 200
+        return copied_tox
 
     #####################################################
     ## ACTIONS Parser
