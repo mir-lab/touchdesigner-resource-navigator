@@ -98,6 +98,7 @@ class NavController:
         self.selected_remote_tox = None
         self._check_pane_assets()
 
+
     def Url_update(self, url):
         '''
         Updates webrender TOP URL
@@ -193,6 +194,8 @@ class NavController:
 
         if NavController.nav_debug.eval():
             debug("loading new selection")
+
+        self.Set_view(True, "panel")
 
         NavController.loading_view.par['display'] = True
         self.display_loading_screen()
@@ -311,28 +314,50 @@ class NavController:
         pass
 
 
+    def Comment_focus_change(self, menu_index):
+        current_example = self.Current_example
+        comments = current_example.findChildren(type=annotateCOMP, depth=1)
+        target_op = current_example.par.Comments.menuNames[menu_index]
+        
+        op(target_op).current = True
+
+        for each_annotate in comments:
+            each_annotate.selected = False
+
+        if ui.panes['NavigatorExample'].type == PaneType.NETWORKEDITOR:
+            ui.panes['NavigatorExample'].homeSelected()
+
     def Floating_window(self, par):
+        nav_panes = ['Navigator', 'NavigatorExample']
         par_val = par.eval()
-        print(par_val)
 
-        navigator_open = self._navigator_open
-        print(f"navigator open | {navigator_open}")
-        if navigator_open:
-            ui.panes['Navigator'].close()
-            ui.panes['NavigatorExample'].close()
+        open_panes = self._navigator_open
+        print(f"navigator open | {open_panes}")
+        
+        for each_pane in open_panes:
+            if each_pane in nav_panes:
+                try:
+                    each_pane.close()
+                except Exception as e:
+                    pass
+            
+        nav_text = ui.panes.createFloating()
+        nav_text.owner = NavController.nav_and_text
+        nav_text.name = NavController.nav_header.name
+        # nav_text.ratio = 0.25
 
-        else:
-            nav_text = ui.panes.createFloating()
-            nav_text.owner = NavController.nav_and_text
-            nav_text.name = NavController.nav_header.name
+        tox_example = nav_text.splitRight()
+        tox_example.owner = NavController.view
+        tox_example.name = NavController.nav_example_header.name
+        tox_example.ratio = 0.6
 
-            tox_example = nav_text.splitRight()
-            tox_example.owner = NavController.view
-            tox_example.name = NavController.nav_example_header.name
+        nav_text.changeType(PaneType.PANEL)
+        tox_example.changeType(PaneType.PANEL)
+        pass
 
-            nav_text.changeType(PaneType.PANEL)
-            tox_example.changeType(PaneType.PANEL)
-            pass
+    @property
+    def Current_example(self):
+        return NavController.disp_buffer.findChildren(depth=1)[0]
 
     @property
     def _pane_names(self):
@@ -340,7 +365,7 @@ class NavController:
     
     @property
     def _navigator_open(self):
-        return NavController.nav_header.name in [each.name for each in ui.panes]
+        return [each.name for each in ui.panes]
 
     def _check_pane_assets(self):
         nav_header_present = NavController.nav_header.name in self._pane_names
@@ -348,18 +373,21 @@ class NavController:
 
         # copy nav and nav_example headers if they don't exist in pane assets
         if nav_header_present:
+            op('/ui/panes/panebar/Navigator').destroy()            
             if parent.Navigator.par.Debug:
-                debug("nav_header already exists")
-            pass
+                debug("destroying previous nav_header")
         else:
-            self._copy_pane_asset(NavController.nav_header, 0, -200)
+            pass
 
         if nav_example_header_present:
+            op('/ui/panes/panebar/NavigatorExample').destroy()
             if parent.Navigator.par.Debug:
-                debug("nav_example_header already exists")
-            pass
+                debug("destroying previous nav_example_header")
         else:
-            self._copy_pane_asset(NavController.nav_example_header, 200, -200)
+            pass
+
+        self._copy_pane_asset(NavController.nav_header, 0, -200)
+        self._copy_pane_asset(NavController.nav_example_header, 200, -200)
 
     def _copy_pane_asset(self, asset, nodeX, nodeY):
         print(f"copying asset {asset}")
@@ -398,8 +426,8 @@ class NavController:
             save_ready_tox.save(tox_path)
             save_ready_tox.destroy()
 
-    def Set_view(self, par, view_type):
-        if par.eval():
+    def Set_view(self, state, view_type):
+        if state:
             example_pane = ui.panes['NavigatorExample']
 
             if view_type == 'panel':
@@ -420,6 +448,10 @@ class NavController:
         copied_tox.nodeX = 0
         copied_tox.nodeY = 200
         return copied_tox
+
+    def Win_close(self):
+        ui.panes['Navigator'].close()
+        ui.panes['NavigatorExample'].close()
 
     #####################################################
     ## ACTIONS Parser

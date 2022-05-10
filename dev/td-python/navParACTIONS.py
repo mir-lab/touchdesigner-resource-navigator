@@ -5,8 +5,7 @@ def Webrenderzoom(par):
     parent.Navigator.Zoom_update(par.eval())
 
 def Winopen(par):
-    print(par)
     parent.Navigator.Floating_window(par)
 
 def Winclose(par):
-    print(par)
+    parent.Navigator.Win_close()
