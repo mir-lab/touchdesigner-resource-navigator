@@ -309,7 +309,7 @@ class NavController:
         '''
         Send JS command to browser on load
         '''
-        NavController.web_browser.par.Javascript = "document.getElementsByClassName('td-navigator-shown')[0].classList.remove('td-navigator-shown'); var downloadButton = document.getElementsByClassName('web-shown')[0]; downloadButton.classList.remove('web-shown'); downloadButton.classList.add('td-navigator-hidden'); "
+        NavController.web_browser.par.Javascript = "document.getElementsByClassName('td-navigator-shown')[0].classList.remove('td-navigator-shown'); var downloadButton = document.getElementsByClassName('td-navigator-hidden')[0]; downloadButton.classList.remove('td-navigator-hidden'); downloadButton.classList.add('web-shown'); "
         run('parent.Navigator.op("container_ui/container_nav_and_text").op("webBrowser").par.Sendjavascript.pulse()')
         pass
 
