@@ -1,4 +1,7 @@
 import urllib.request
+import timerFuncsMOD
+import parserActionsMOD
+import paneControlsMOD
 
 #####################################################
 # action spec
@@ -328,6 +331,8 @@ class NavController:
             ui.panes['NavigatorExample'].homeSelected()
 
     def Floating_window(self, par):
+        #TODO - add some pane clean-up
+
         nav_panes = ['Navigator', 'NavigatorExample']
         par_val = par.eval()
 
@@ -439,6 +444,10 @@ class NavController:
                 example_pane.owner = current_example
                 example_pane.changeType(PaneType.NETWORKEDITOR)
                 ui.panes['NavigatorExample'].home()
+            
+            elif view_type == 'floating':
+                # TODO - complete floating window call
+                debug("SET FLOATING")
 
             else:
                 pass        
