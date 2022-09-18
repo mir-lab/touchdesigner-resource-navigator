@@ -1,12 +1,9 @@
 import urllib.request
-import timerFuncsMOD
 import parserActionsMOD
 import paneControlsMOD
 
-#####################################################
-# action spec
-#####################################################
-'''
+"""Action Specifications
+
 query string formated commands that can be interpreted by TouchDesigner
 to drive scripts and actions in TD.
 
@@ -25,10 +22,10 @@ examples:
 ?actionable=1&action=open_in_browser
 
 ?actionable=1&action=update_td_pars&somePar=someVal
-'''
+"""
 
 class NavController:
-    '''
+    """
     Extension for managing the Curriculum Navigator
 
     Notes
@@ -68,7 +65,7 @@ class NavController:
     - Timer Functions
         Consolidated location for handling timer callbacks, reducing the number of 
         places where python code may need to be updated.
-    '''
+    """
 
     NavigatorCOMP   = parent.Navigator
     NavigatorCOMP = parent.Navigator
@@ -86,7 +83,7 @@ class NavController:
     nav_example_header = parent.Navigator.op('base_assets/NavigatorExample')
 
     def __init__(self, ownerOp):
-        '''
+        """
         EXT Init 
 
 
@@ -95,7 +92,7 @@ class NavController:
         ownerOp (TD_operator)
         > The TouchDesigner operator initialzing this ext, usually `me`
         
-        '''
+        """
         
         self.Owner_op = ownerOp
         self.selected_remote_tox = None
@@ -103,7 +100,7 @@ class NavController:
 
 
     def Url_update(self, url):
-        '''
+        """
         Updates webrender TOP URL
 
         Args
@@ -111,7 +108,7 @@ class NavController:
         url (str)
         > The URL from the webBrowser COMP
 
-        '''
+        """
 
         qs_result = self.query_string_parse(url)
         key_list = [key for key in qs_result.keys()]
@@ -125,14 +122,14 @@ class NavController:
         pass
 
     def Zoom_update(self, zoom_level):
-        '''
+        """
         Update web render zoom level
 
         Args
         ---------------
         zoom_level (int)
         > The target zoom level for the webrender TOP
-        '''
+        """
         print(f"document.body.style.zoom = '{zoom_level}%'")
         NavController.web_browser.op('webrender1').executeJavaScript(f"document.body.style.zoom = '{zoom_level}%'")
 
@@ -145,23 +142,23 @@ class NavController:
         NavController.NavigatorCOMP.par.Webrenderzoom = val
 
     def get_current_example(self):
-        '''
+        """
         Get current example
 
         Returns
         ---------------
         current_example (TD_operator)
         > The current component loaded in the Navigator's display buffer COMP
-        '''
+        """
 
         current_example = parent.Navigator.op('container_ui/container_view/container_display_buffer').findChildren(depth=1)[0]
         return current_example
 
     def remove_qs_from_path(self):
-        '''
+        """
         Remove query string from URL path
 
-        '''
+        """
 
         if NavController.nav_debug.eval():
             debug("remove QS from Path")
@@ -171,7 +168,7 @@ class NavController:
         NavController.web_browser.par.Address = cleanAddress
     
     def clean_url(self, url):
-        '''
+        """
         Clean up a URL
 
         Removes dangling query strings from path.
@@ -186,14 +183,14 @@ class NavController:
         ---------------
         url (str)
         > URL with all query strings removed
-        '''
+        """
         return urllib.parse.urljoin(url, urllib.parse.urlparse(url).path)
 
     def load_new_selection(self):
-        '''
+        """
         Load selection
 
-        '''
+        """
 
         if NavController.nav_debug.eval():
             debug("loading new selection")
@@ -204,10 +201,10 @@ class NavController:
         self.display_loading_screen()
 
     def display_loading_screen(self):
-        '''
+        """
         Display loading screen during load
 
-        '''
+        """
 
         if NavController.nav_debug.eval():
             debug("starting timer")
@@ -216,10 +213,10 @@ class NavController:
         NavController.trans_timer.par.start.pulse()
 
     def load_remote_tox(self):
-        '''
+        """
         Load Remote TOX
 
-        '''
+        """
 
         remoteTox = self.selected_remote_tox
 
@@ -242,16 +239,16 @@ class NavController:
                 pass
 
     def clear_view(self):
-        '''
+        """
         Clear display buffer of any ops
 
-        '''
+        """
 
         for each in NavController.disp_buffer.findChildren(depth=1):
             each.destroy()
 
     def set_timer_play(self, playVal):
-        '''
+        """
         Start timer's play
 
         Args
@@ -259,17 +256,17 @@ class NavController:
         playVal (bool)
         > The play parameter value to be passed to the timer CHOP
 
-        '''
+        """
         NavController.trans_timer.par['play'] = playVal
 
     def toggle_settings(self):
-        '''
+        """
         Toggle display par for settings
-        '''
+        """
         NavController.settings_view.par.display = (0 if NavController.settings_view.par.display else 1)
 
     def query_string_parse(self, url):
-        '''
+        """
         Parse query string
 
         Args
@@ -281,23 +278,23 @@ class NavController:
         ---------------
         qs_result (query string obj)
         > the resulting query string from a URL
-        '''
+        """
 
         parse_result = urllib.parse.urlparse(url).query
         qs_result = urllib.parse.parse_qs(parse_result)
         return qs_result
 
     def update_browser(self):
-        '''
+        """
         Update webrender TOP / Web Browser  
-        '''
+        """
         url = self.selected_remote_tox
         NavController.web_browser.par['Address'] = url
 
     def Navigator_reset(self):
-        '''
+        """
         Reset Navigator to default state
-        '''
+        """
 
         self.clear_view()
         default = parent.Navigator.op('container_ui/container_view/container_loading/container_start')
@@ -309,9 +306,9 @@ class NavController:
         copy_op.par.Text = "Navigator"
 
     def On_page_load(self):
-        '''
+        """
         Send JS command to browser on load
-        '''
+        """
         NavController.web_browser.par.Javascript = "document.getElementsByClassName('td-navigator-shown')[0].classList.remove('td-navigator-shown')"
         run('parent.Navigator.op("container_ui/container_nav_and_text").op("webBrowser").par.Sendjavascript.pulse()')
         pass
@@ -467,7 +464,7 @@ class NavController:
     #####################################################
 
     def _web_action_map(self, action):
-        '''
+        """
         Dictionary map of fucntions that corespond to web actions
 
 
@@ -481,7 +478,7 @@ class NavController:
         ---------------
         action_map_func (method)
         > matching method from NavController
-        '''
+        """
         action_map = {
             "load_tox" : self.load_tox,
             "open_floating_network" : self.open_floating_network,
@@ -492,7 +489,7 @@ class NavController:
         return action_map_func
 
     def _web_action(self, qs_result):
-        '''
+        """
         Action Runner - tries to run the requested web-action
 
         Args
@@ -500,7 +497,7 @@ class NavController:
         qs_result (query string obj):
         > the resulting query string from a URL
 
-        '''
+        """
 
         try:
             func = self._web_action_map(qs_result.get('action')[0])
@@ -517,14 +514,14 @@ class NavController:
     #####################################################
 
     def open_floating_network(self, qs_results):
-        '''
+        """
         Opens Floating Network Window
         
         Args
         ---------------
         qs_results (query_string obj)
         > query string from ULR, contains all necessary args and vals
-        '''
+        """
 
         if NavController.nav_debug.eval():
             debug("Open Floating Window")
@@ -537,14 +534,14 @@ class NavController:
         pass
 
     def update_td_pars(self, qs_results):
-        '''
+        """
         Update TD parameters
         
         Args
         ---------------
         qs_results (query_string obj)
         > query string from ULR, contains all necessary args and vals
-        '''
+        """
 
         target_op = self.get_current_example()
         exempt_keys = ['action', 'actionable']
@@ -563,14 +560,14 @@ class NavController:
         pass
 
     def load_tox(self, qs_results):
-        '''
+        """
         Load TOX from URL
 
         Args
         ---------------
         qs_results (query_string obj)
         > query string from ULR, contains all necessary args and vals
-        '''
+        """
 
         if NavController.nav_debug.eval():
             debug("loading remote")
@@ -582,7 +579,7 @@ class NavController:
         pass
 
     def open_in_browser(self, qs_results):
-        '''
+        """
         Open URL in web browser
         
         Args
@@ -590,7 +587,7 @@ class NavController:
         qs_results (query_string obj)
         > query string from ULR, contains all necessary args and vals
 
-        '''
+        """
 
         address = NavController.web_browser.par.Address.eval()
         ui.viewFile(address)
@@ -601,7 +598,7 @@ class NavController:
     #####################################################
 
     def Timer_segment_enter(self, **kwargs):
-        '''
+        """
         timer onSegmentEnter callback       
 
         Args
@@ -610,7 +607,7 @@ class NavController:
         > Timer op key word args
 
 
-        '''
+        """
         timerOp = kwargs.get('timerOp')
         segment = kwargs.get('segment')
         interrupt = kwargs.get('interrupt')
@@ -622,7 +619,7 @@ class NavController:
             timerOp.par.play = True
 
     def Timer_on_done(self, **kwargs):
-        '''
+        """
         timer onDone callback
 
         Args
@@ -630,7 +627,7 @@ class NavController:
         **kwargs (keyword args)
         > Timer op key word args
 
-        '''
+        """
         NavController.loading_view.par['display'] = False
         kwargs.get('timerOp').par.active = False
         pass
