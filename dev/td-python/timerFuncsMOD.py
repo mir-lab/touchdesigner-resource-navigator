@@ -1,8 +1,13 @@
-#####################################################
-## Timer Functions
-#####################################################
+"""Timer Functions
 
-def Timer_segment_enter(self, **kwargs):
+Isolates callbacks into a separate module block for easier 
+management alongside the extension.
+"""
+
+# global op shortcut to TouchDesigner Curriculum Navigator
+Navigator = op.TDCN
+
+def Timer_segment_enter(**kwargs):
     '''
     timer onSegmentEnter callback       
 
@@ -19,11 +24,11 @@ def Timer_segment_enter(self, **kwargs):
 
     if segment > 0:
         timerOp.par.play = False
-        self.clear_view()
-        run(self.load_remote_tox(), delayFrames = 1)
+        Navigator.ext.NavController.clear_view()
+        run(Navigator.ext.NavController.load_remote_tox(), delayFrames = 1)
         timerOp.par.play = True
 
-def Timer_on_done(self, **kwargs):
+def Timer_on_done(**kwargs):
     '''
     timer onDone callback
 
@@ -33,7 +38,7 @@ def Timer_on_done(self, **kwargs):
     > Timer op key word args
 
     '''
-    NavController.loading_view.par['display'] = False
+    Navigator.ext.NavController.loading_view.par['display'] = False
     kwargs.get('timerOp').par.active = False
     pass
 

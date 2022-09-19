@@ -1,3 +1,9 @@
+"""Navigator Parameter Actions
+
+Function name matches the parameter name, allowing for easier 
+matching of function to callback.
+"""
+
 def Resetnavigator(par):
     parent.Navigator.Navigator_reset()
 

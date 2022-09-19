@@ -1,12 +1,9 @@
 import urllib.request
-import timerFuncsMOD
 import parserActionsMOD
 import paneControlsMOD
 
-#####################################################
-# action spec
-#####################################################
-'''
+"""Action Specifications
+
 query string formated commands that can be interpreted by TouchDesigner
 to drive scripts and actions in TD.
 
@@ -25,10 +22,10 @@ examples:
 ?actionable=1&action=open_in_browser
 
 ?actionable=1&action=update_td_pars&somePar=someVal
-'''
+"""
 
 class NavController:
-    '''
+    """
     Extension for managing the Curriculum Navigator
 
     Notes
@@ -68,7 +65,7 @@ class NavController:
     - Timer Functions
         Consolidated location for handling timer callbacks, reducing the number of 
         places where python code may need to be updated.
-    '''
+    """
 
     NavigatorCOMP   = parent.Navigator
     NavigatorCOMP = parent.Navigator
@@ -86,7 +83,7 @@ class NavController:
     nav_example_header = parent.Navigator.op('base_assets/NavigatorExample')
 
     def __init__(self, ownerOp):
-        '''
+        """
         EXT Init 
 
 
@@ -95,7 +92,7 @@ class NavController:
         ownerOp (TD_operator)
         > The TouchDesigner operator initialzing this ext, usually `me`
         
-        '''
+        """
         
         self.Owner_op = ownerOp
         self.selected_remote_tox = None
@@ -103,7 +100,7 @@ class NavController:
 
 
     def Url_update(self, url):
-        '''
+        """
         Updates webrender TOP URL
 
         Args
@@ -111,57 +108,37 @@ class NavController:
         url (str)
         > The URL from the webBrowser COMP
 
-        '''
+        """
 
         qs_result = self.query_string_parse(url)
         key_list = [key for key in qs_result.keys()]
 
         # check for the actionable arg
         if qs_result.get('actionable', [0])[0] == '1':
-            self._web_action(qs_result)
+            parserActionsMOD.Web_action(qs_result)
         else:
             pass
 
         pass
 
-    def Zoom_update(self, zoom_level):
-        '''
-        Update web render zoom level
-
-        Args
-        ---------------
-        zoom_level (int)
-        > The target zoom level for the webrender TOP
-        '''
-        print(f"document.body.style.zoom = '{zoom_level}%'")
-        NavController.web_browser.op('webrender1').executeJavaScript(f"document.body.style.zoom = '{zoom_level}%'")
-
-    def Zoom_increment(self, increment_val):
-        prev_val = NavController.NavigatorCOMP.par.Webrenderzoom.eval()
-        NavController.NavigatorCOMP.par.Webrenderzoom = increment_val + prev_val
-    
-    def Zoom_reset(self, val):
-        print("zoom reset")
-        NavController.NavigatorCOMP.par.Webrenderzoom = val
-
     def get_current_example(self):
-        '''
+        """
         Get current example
 
         Returns
         ---------------
         current_example (TD_operator)
         > The current component loaded in the Navigator's display buffer COMP
-        '''
+        """
 
         current_example = parent.Navigator.op('container_ui/container_view/container_display_buffer').findChildren(depth=1)[0]
         return current_example
 
     def remove_qs_from_path(self):
-        '''
+        """
         Remove query string from URL path
 
-        '''
+        """
 
         if NavController.nav_debug.eval():
             debug("remove QS from Path")
@@ -171,7 +148,7 @@ class NavController:
         NavController.web_browser.par.Address = cleanAddress
     
     def clean_url(self, url):
-        '''
+        """
         Clean up a URL
 
         Removes dangling query strings from path.
@@ -186,14 +163,14 @@ class NavController:
         ---------------
         url (str)
         > URL with all query strings removed
-        '''
+        """
         return urllib.parse.urljoin(url, urllib.parse.urlparse(url).path)
 
     def load_new_selection(self):
-        '''
+        """
         Load selection
 
-        '''
+        """
 
         if NavController.nav_debug.eval():
             debug("loading new selection")
@@ -204,10 +181,10 @@ class NavController:
         self.display_loading_screen()
 
     def display_loading_screen(self):
-        '''
+        """
         Display loading screen during load
 
-        '''
+        """
 
         if NavController.nav_debug.eval():
             debug("starting timer")
@@ -216,10 +193,10 @@ class NavController:
         NavController.trans_timer.par.start.pulse()
 
     def load_remote_tox(self):
-        '''
+        """
         Load Remote TOX
 
-        '''
+        """
 
         remoteTox = self.selected_remote_tox
 
@@ -242,16 +219,16 @@ class NavController:
                 pass
 
     def clear_view(self):
-        '''
+        """
         Clear display buffer of any ops
 
-        '''
+        """
 
         for each in NavController.disp_buffer.findChildren(depth=1):
             each.destroy()
 
     def set_timer_play(self, playVal):
-        '''
+        """
         Start timer's play
 
         Args
@@ -259,17 +236,17 @@ class NavController:
         playVal (bool)
         > The play parameter value to be passed to the timer CHOP
 
-        '''
+        """
         NavController.trans_timer.par['play'] = playVal
 
     def toggle_settings(self):
-        '''
+        """
         Toggle display par for settings
-        '''
+        """
         NavController.settings_view.par.display = (0 if NavController.settings_view.par.display else 1)
 
     def query_string_parse(self, url):
-        '''
+        """
         Parse query string
 
         Args
@@ -281,23 +258,23 @@ class NavController:
         ---------------
         qs_result (query string obj)
         > the resulting query string from a URL
-        '''
+        """
 
         parse_result = urllib.parse.urlparse(url).query
         qs_result = urllib.parse.parse_qs(parse_result)
         return qs_result
 
     def update_browser(self):
-        '''
+        """
         Update webrender TOP / Web Browser  
-        '''
+        """
         url = self.selected_remote_tox
         NavController.web_browser.par['Address'] = url
 
     def Navigator_reset(self):
-        '''
+        """
         Reset Navigator to default state
-        '''
+        """
 
         self.clear_view()
         default = parent.Navigator.op('container_ui/container_view/container_loading/container_start')
@@ -309,26 +286,17 @@ class NavController:
         copy_op.par.Text = "Navigator"
 
     def On_page_load(self):
-        '''
+        """
         Send JS command to browser on load
-        '''
+        """
         NavController.web_browser.par.Javascript = "document.getElementsByClassName('td-navigator-shown')[0].classList.remove('td-navigator-shown')"
         run('parent.Navigator.op("container_ui/container_nav_and_text").op("webBrowser").par.Sendjavascript.pulse()')
         pass
 
-
     def Comment_focus_change(self, menu_index):
-        current_example = self.Current_example
-        comments = current_example.findChildren(type=annotateCOMP, depth=1)
-        target_op = current_example.par.Comments.menuNames[menu_index]
-        
-        op(target_op).current = True
-
-        for each_annotate in comments:
-            each_annotate.selected = False
-
-        if ui.panes['NavigatorExample'].type == PaneType.NETWORKEDITOR:
-            ui.panes['NavigatorExample'].homeSelected()
+        """Sets focus network view focus to selected comment
+        """
+        paneControlsMOD.Comment_focus_change(menu_index)
 
     def Floating_window(self, par):
         #TODO - add some pane clean-up
@@ -405,126 +373,27 @@ class NavController:
     #####################################################
 
     def Save_tox_copy(self, par):
-        if par.eval():
-            print("Save TOX copy")
-
-            disp_buffer = NavController.disp_buffer
-            current_example = disp_buffer.findChildren(type=containerCOMP)[0]
-            save_ready_tox = self._copy_current_example(current_example)
-
-            tox_path = ui.chooseFile(
-                load=False, 
-                start=f"{current_example}.tox", 
-                fileTypes=['tox'], 
-                title='Save Current TOX')
-            
-
-            # set hmode, vmode, width, and height for containers
-            if save_ready_tox.type == 'container':
-                save_ready_tox.par.hmode = 0
-                save_ready_tox.par.vmode = 0
-                save_ready_tox.par.w = 1080
-                save_ready_tox.par.h = 1080
-            else:
-                pass
-
-            save_ready_tox.save(tox_path)
-            save_ready_tox.destroy()
+        paneControlsMOD.Save_tox_copy(par)
 
     def Set_view(self, state, view_type):
-        if state:
-            example_pane = ui.panes['NavigatorExample']
-
-            if view_type == 'panel':
-                example_pane.owner = NavController.view
-                example_pane.changeType(PaneType.PANEL)
-
-            elif view_type == 'network':
-                current_example = NavController.disp_buffer.findChildren(type=containerCOMP)[0]
-                example_pane.owner = current_example
-                example_pane.changeType(PaneType.NETWORKEDITOR)
-                ui.panes['NavigatorExample'].home()
-            
-            elif view_type == 'floating':
-                # TODO - complete floating window call
-                debug("SET FLOATING")
-
-            else:
-                pass        
-
-    def _copy_current_example(self, example):
-        copied_tox = op('/sys/quiet').copy(example)
-        copied_tox.nodeX = 0
-        copied_tox.nodeY = 200
-        return copied_tox
+        paneControlsMOD.Set_view(state, view_type)
 
     def Win_close(self):
-        ui.panes['Navigator'].close()
-        ui.panes['NavigatorExample'].close()
-
-    #####################################################
-    ## ACTIONS Parser
-    #####################################################
-
-    def _web_action_map(self, action):
-        '''
-        Dictionary map of fucntions that corespond to web actions
-
-
-        Args
-        ---------------
-        action (str)
-        > String name of coresponding NavController method
-
-
-        Returns
-        ---------------
-        action_map_func (method)
-        > matching method from NavController
-        '''
-        action_map = {
-            "load_tox" : self.load_tox,
-            "open_floating_network" : self.open_floating_network,
-            "open_in_browser" : self.open_in_browser,
-            "update_td_pars" : self.update_td_pars
-        }
-        action_map_func = action_map.get(action)
-        return action_map_func
-
-    def _web_action(self, qs_result):
-        '''
-        Action Runner - tries to run the requested web-action
-
-        Args
-        ---------------
-        qs_result (query string obj):
-        > the resulting query string from a URL
-
-        '''
-
-        try:
-            func = self._web_action_map(qs_result.get('action')[0])
-            func(qs_result)
-        except Exception as e:
-            if debug:
-                debug(e)
-            else:
-                pass       
-        return 
+        paneControlsMOD.Win_close()
 
     #####################################################
     ## ACTIONS 
     #####################################################
 
     def open_floating_network(self, qs_results):
-        '''
+        """
         Opens Floating Network Window
         
         Args
         ---------------
         qs_results (query_string obj)
         > query string from ULR, contains all necessary args and vals
-        '''
+        """
 
         if NavController.nav_debug.eval():
             debug("Open Floating Window")
@@ -537,14 +406,14 @@ class NavController:
         pass
 
     def update_td_pars(self, qs_results):
-        '''
+        """
         Update TD parameters
         
         Args
         ---------------
         qs_results (query_string obj)
         > query string from ULR, contains all necessary args and vals
-        '''
+        """
 
         target_op = self.get_current_example()
         exempt_keys = ['action', 'actionable']
@@ -563,14 +432,14 @@ class NavController:
         pass
 
     def load_tox(self, qs_results):
-        '''
+        """
         Load TOX from URL
 
         Args
         ---------------
         qs_results (query_string obj)
         > query string from ULR, contains all necessary args and vals
-        '''
+        """
 
         if NavController.nav_debug.eval():
             debug("loading remote")
@@ -582,7 +451,7 @@ class NavController:
         pass
 
     def open_in_browser(self, qs_results):
-        '''
+        """
         Open URL in web browser
         
         Args
@@ -590,48 +459,9 @@ class NavController:
         qs_results (query_string obj)
         > query string from ULR, contains all necessary args and vals
 
-        '''
+        """
 
         address = NavController.web_browser.par.Address.eval()
         ui.viewFile(address)
         self.remove_qs_from_path()
-
-    #####################################################
-    ## Timer Functions
-    #####################################################
-
-    def Timer_segment_enter(self, **kwargs):
-        '''
-        timer onSegmentEnter callback       
-
-        Args
-        ---------------
-        **kwargs (keyword args)
-        > Timer op key word args
-
-
-        '''
-        timerOp = kwargs.get('timerOp')
-        segment = kwargs.get('segment')
-        interrupt = kwargs.get('interrupt')
-
-        if segment > 0:
-            timerOp.par.play = False
-            self.clear_view()
-            run(self.load_remote_tox(), delayFrames = 1)
-            timerOp.par.play = True
-
-    def Timer_on_done(self, **kwargs):
-        '''
-        timer onDone callback
-
-        Args
-        ---------------
-        **kwargs (keyword args)
-        > Timer op key word args
-
-        '''
-        NavController.loading_view.par['display'] = False
-        kwargs.get('timerOp').par.active = False
-        pass
 

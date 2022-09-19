@@ -1,14 +1,32 @@
+"""Pane Controls
+"""
+
+# allows all type hints to be imported as strings by default
+from __future__ import annotations
+
+# allows for type checking without circular imports
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    import navigatorEXT
+
+# global op shortcut to TouchDesigner Curriculum Navigator
+Navigator = op.TDCN
+
 #####################################################
 ## PANE CONTROLS
 #####################################################
 
-def Save_tox_copy(self, par):
+def Save_tox_copy(par):
+    """Saves a copy of the tox being viewed
+    
+    This is called from the navigator "Save" Button
+    """
     if par.eval():
         print("Save TOX copy")
 
-        disp_buffer = NavController.disp_buffer
+        disp_buffer = Navigator.disp_buffer
         current_example = disp_buffer.findChildren(type=containerCOMP)[0]
-        save_ready_tox = self._copy_current_example(current_example)
+        save_ready_tox = _copy_current_example(current_example)
 
         tox_path = ui.chooseFile(
             load=False, 
@@ -16,7 +34,6 @@ def Save_tox_copy(self, par):
             fileTypes=['tox'], 
             title='Save Current TOX')
         
-
         # set hmode, vmode, width, and height for containers
         if save_ready_tox.type == 'container':
             save_ready_tox.par.hmode = 0
@@ -29,33 +46,73 @@ def Save_tox_copy(self, par):
         save_ready_tox.save(tox_path)
         save_ready_tox.destroy()
 
-def Set_view(self, state, view_type):
+def Set_view(state, view_type):
+    """
+    """
     if state:
         example_pane = ui.panes['NavigatorExample']
 
         if view_type == 'panel':
-            example_pane.owner = NavController.view
+            example_pane.owner = Navigator.ext.NavController.view
             example_pane.changeType(PaneType.PANEL)
 
         elif view_type == 'network':
-            current_example = NavController.disp_buffer.findChildren(type=containerCOMP)[0]
+            current_example = Navigator.ext.NavController.disp_buffer.findChildren(type=containerCOMP)[0]
             example_pane.owner = current_example
             example_pane.changeType(PaneType.NETWORKEDITOR)
             ui.panes['NavigatorExample'].home()
         
         elif view_type == 'floating':
             # TODO - complete floating window call
-            debug("SET FLOATING")
+            Open_floating()
 
         else:
-            pass        
+            pass
 
-def _copy_current_example(self, example):
+def _copy_current_example(example):
+    """Creates a copy of the current tox
+    """
     copied_tox = op('/sys/quiet').copy(example)
     copied_tox.nodeX = 0
     copied_tox.nodeY = 200
     return copied_tox
 
-def Win_close(self):
+def Win_close():
     ui.panes['Navigator'].close()
     ui.panes['NavigatorExample'].close()
+
+def Open_floating():
+    """
+    Opens Floating Network Window
+    
+    Args
+    ---------------
+    qs_results (query_string obj)
+    > query string from ULR, contains all necessary args and vals
+    """
+
+    if Navigator.ext.NavController.nav_debug.eval():
+        debug("Open Floating Window")
+    floating_pane = ui.panes.createFloating(name="Example")
+    current_example = Navigator.ext.NavController.get_current_example()
+    floating_pane.owner = current_example
+    floating_pane.home()
+
+
+def Comment_focus_change(menu_index:int) -> None:
+    current_example = Navigator.Current_example
+
+    comments = current_example.findChildren(type=annotateCOMP, depth=1)
+    target_op = current_example.par.Comments.menuNames[menu_index]
+    
+    op(target_op).current = True
+
+    for each_annotate in comments:
+        each_annotate.selected = False
+
+    if ui.panes['NavigatorExample'].type == PaneType.NETWORKEDITOR:
+        ui.panes['NavigatorExample'].homeSelected()
+    
+    else:
+        Set_view(True, 'network')
+        ui.panes['NavigatorExample'].homeSelected() 
