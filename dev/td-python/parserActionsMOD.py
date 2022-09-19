@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 # global op shortcut to TouchDesigner Curriculum Navigator
 Navigator:navigatorEXT.NavController = op.TDCN
 
-def _web_action_map(self, action):
+def _web_action_map(action):
     '''
     Dictionary map of fucntions that corespond to web actions
 
@@ -29,10 +29,10 @@ def _web_action_map(self, action):
     > matching method from NavController
     '''
     action_map = {
-        "load_tox" : Navigator.load_tox,
-        "open_floating_network" : Navigator.open_floating_network,
-        "open_in_browser" : Navigator.open_in_browser,
-        "update_td_pars" : Navigator.update_td_pars
+        "load_tox" : Navigator.ext.NavController.load_tox,
+        "open_floating_network" : Navigator.ext.NavController.open_floating_network,
+        "open_in_browser" : Navigator.ext.NavController.open_in_browser,
+        "update_td_pars" : Navigator.ext.NavController.update_td_pars
     }
     action_map_func = action_map.get(action)
     return action_map_func

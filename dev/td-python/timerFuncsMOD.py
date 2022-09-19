@@ -7,7 +7,7 @@ management alongside the extension.
 # global op shortcut to TouchDesigner Curriculum Navigator
 Navigator = op.TDCN
 
-def Timer_segment_enter(self, **kwargs):
+def Timer_segment_enter(**kwargs):
     '''
     timer onSegmentEnter callback       
 
@@ -24,11 +24,11 @@ def Timer_segment_enter(self, **kwargs):
 
     if segment > 0:
         timerOp.par.play = False
-        Navigator.clear_view()
-        run(Navigator.load_remote_tox(), delayFrames = 1)
+        Navigator.ext.NavController.clear_view()
+        run(Navigator.ext.NavController.load_remote_tox(), delayFrames = 1)
         timerOp.par.play = True
 
-def Timer_on_done(self, **kwargs):
+def Timer_on_done(**kwargs):
     '''
     timer onDone callback
 
@@ -38,7 +38,7 @@ def Timer_on_done(self, **kwargs):
     > Timer op key word args
 
     '''
-    NavController.loading_view.par['display'] = False
+    Navigator.ext.NavController.loading_view.par['display'] = False
     kwargs.get('timerOp').par.active = False
     pass
 
