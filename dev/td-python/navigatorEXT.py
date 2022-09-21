@@ -238,6 +238,7 @@ class NavController:
 
         """
         NavController.trans_timer.par['play'] = playVal
+        self.qu
 
     def toggle_settings(self):
         """
@@ -245,7 +246,7 @@ class NavController:
         """
         NavController.settings_view.par.display = (0 if NavController.settings_view.par.display else 1)
 
-    def query_string_parse(self, url):
+    def query_string_parse(self, url:str) -> str:
         """
         Parse query string
 
