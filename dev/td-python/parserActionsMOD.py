@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 # global op shortcut to TouchDesigner Curriculum Navigator
 Navigator:navigatorEXT.NavController = op.TDCN
 
-def _web_action_map(action):
+def _web_action_map(action:navigatrEXT.action):
     '''
     Dictionary map of fucntions that corespond to web actions
 
