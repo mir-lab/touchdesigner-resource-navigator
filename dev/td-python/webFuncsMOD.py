@@ -17,9 +17,9 @@ def Zoom_update(zoom_level) -> None:
 
 def Zoom_increment(increment_val) -> None:
     """Increments zoom value"""
-    prev_val = Navigator.NavigatorCOMP.par.Webrenderzoom.eval()
-    Navigator.NavigatorCOMP.par.Webrenderzoom = increment_val + prev_val
+    prev_val = Navigator.par.Webrenderzoom.eval()
+    Navigator.par.Webrenderzoom = increment_val + prev_val
 
 def Zoom_reset(val) -> None:
     """Resets webbrowser soom"""
-    Navigator.NavigatorCOMP.par.Webrenderzoom = val
+    Navigator.par.Webrenderzoom = val

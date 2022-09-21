@@ -35,13 +35,13 @@ def load_tox(qs_results:dict):
     > query string from ULR, contains all necessary args and vals
     """
 
-    if Navigator.nav_debug.eval():
+    if Navigator.ext.NavController.nav_debug.eval():
         debug("loading remote")
 
     remote_tox = qs_results.get('remotePath')
-    self.selected_remote_tox = remote_tox[0]
-    self.load_new_selection()
-    self.remove_qs_from_path() 
+    Navigator.ext.NavController.selected_remote_tox = remote_tox[0]
+    Navigator.ext.NavController.load_new_selection()
+    Navigator.ext.NavController.remove_qs_from_path() 
     pass
 
 def open_floating_network(qs_results:dict):
@@ -54,7 +54,7 @@ def open_floating_network(qs_results:dict):
     > query string from ULR, contains all necessary args and vals
     """
 
-    if Navigator.nav_debug.eval():
+    if Navigator.ext.NavController.nav_debug.eval():
         debug("Open Floating Window")
     floating_pane = ui.panes.createFloating(name="Example")
     current_example = Navigator.ext.NavController.get_current_example()
@@ -75,7 +75,7 @@ def open_in_browser(qs_results:dict):
 
     """
 
-    address = Navigator.web_browser.par.Address.eval()
+    address = Navigator.ext.NavController.web_browser.par.Address.eval()
     ui.viewFile(address)
     Navigator.ext.NavController.remove_qs_from_path()
 
@@ -100,7 +100,7 @@ def update_td_pars(qs_results:dict):
             except Exception as e:
                 pass
         
-        if Navigator.nav_debug.eval():
+        if Navigator.ext.NavController.nav_debug.eval():
             debug(each_par, each_val)
 
     Navigator.ext.NavController.remove_qs_from_path()

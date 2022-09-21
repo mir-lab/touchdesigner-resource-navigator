@@ -313,8 +313,14 @@ class NavController:
                     each_pane.close()
                 except Exception as e:
                     pass
-            
-        nav_text = ui.panes.createFloating()
+
+        # borrowed from Snippets on demand 
+        nav_text = ui.panes.createFloating(
+            maxWidth=monitors.primary.width, 
+            maxHeight=monitors.primary.height, 
+            monitorSpanWidth=0.9, 
+            monitorSpanHeight=0.9)
+
         nav_text.owner = NavController.nav_and_text
         nav_text.name = NavController.nav_header.name
         # nav_text.ratio = 0.25
@@ -368,10 +374,7 @@ class NavController:
         new_pane_asset.nodeX = nodeX
         new_pane_asset.nodeY = nodeY
 
-    #####################################################
-    ## PANE CONTROLS
-    #####################################################
-
+    #NOTE : pane controls
     def Save_tox_copy(self, par):
         paneControlsMOD.Save_tox_copy(par)
 
