@@ -67,7 +67,6 @@ class NavController:
         places where python code may need to be updated.
     """
 
-    NavigatorCOMP   = parent.Navigator
     NavigatorCOMP = parent.Navigator
     view = parent.Navigator.op('container_ui/container_view')
     nav_and_text = parent.Navigator.op('container_ui/container_nav_and_text')
@@ -382,87 +381,10 @@ class NavController:
     def Win_close(self):
         paneControlsMOD.Win_close()
 
-    #####################################################
-    ## ACTIONS 
-    #####################################################
+    #NOTE : parses and uses actions from the web
+    def Actions_from_web(self, qs_results:dict) -> None:
+        """Launches Actions
 
-    def open_floating_network(self, qs_results):
+        Forwards query string results to parserActionsMOD
         """
-        Opens Floating Network Window
-        
-        Args
-        ---------------
-        qs_results (query_string obj)
-        > query string from ULR, contains all necessary args and vals
-        """
-
-        if NavController.nav_debug.eval():
-            debug("Open Floating Window")
-        floating_pane = ui.panes.createFloating(name="Example")
-        current_example = self.get_current_example()
-        floating_pane.owner = current_example
-        floating_pane.home()
-
-        self.remove_qs_from_path()
-        pass
-
-    def update_td_pars(self, qs_results):
-        """
-        Update TD parameters
-        
-        Args
-        ---------------
-        qs_results (query_string obj)
-        > query string from ULR, contains all necessary args and vals
-        """
-
-        target_op = self.get_current_example()
-        exempt_keys = ['action', 'actionable']
-        for each_par, each_val in qs_results.items():
-            if each_par in exempt_keys:
-                pass
-            else:
-                try:
-                    target_op.par[each_par] = each_val[0]
-                except Exception as e:
-                    pass
-            if NavController.nav_debug.eval():
-                debug(each_par, each_val)
-
-        self.remove_qs_from_path()
-        pass
-
-    def load_tox(self, qs_results):
-        """
-        Load TOX from URL
-
-        Args
-        ---------------
-        qs_results (query_string obj)
-        > query string from ULR, contains all necessary args and vals
-        """
-
-        if NavController.nav_debug.eval():
-            debug("loading remote")
-
-        remote_tox = qs_results.get('remotePath')
-        self.selected_remote_tox = remote_tox[0]
-        self.load_new_selection()
-        self.remove_qs_from_path() 
-        pass
-
-    def open_in_browser(self, qs_results):
-        """
-        Open URL in web browser
-        
-        Args
-        ---------------
-        qs_results (query_string obj)
-        > query string from ULR, contains all necessary args and vals
-
-        """
-
-        address = NavController.web_browser.par.Address.eval()
-        ui.viewFile(address)
-        self.remove_qs_from_path()
-
+        parserActionsMOD.Web_action(qs_results)

@@ -1,20 +1,15 @@
 """Actions Parser
 """
 
-# allows all type hints to be imported as strings by default
-from __future__ import annotations
 
-# allows for type checking without circular imports
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    import navigatorEXT
+import webACTIONS
 
 # global op shortcut to TouchDesigner Curriculum Navigator
-Navigator:navigatorEXT.NavController = op.TDCN
+Navigator = op.TDCN
 
-def _web_action_map(action:navigatrEXT.action):
+def _get_action(action:str) -> None:
     '''
-    Dictionary map of fucntions that corespond to web actions
+    getattr call that attempts to retrieve a function from another module
 
 
     Args
@@ -22,22 +17,23 @@ def _web_action_map(action:navigatrEXT.action):
     action (str)
     > String name of coresponding NavController method
 
-
     Returns
     ---------------
-    action_map_func (method)
-    > matching method from NavController
+    func (callabe)
+    > matching function from webACTIONS, returns None if module contains 
+    no matching function
     '''
-    action_map = {
-        "load_tox" : Navigator.ext.NavController.load_tox,
-        "open_floating_network" : Navigator.ext.NavController.open_floating_network,
-        "open_in_browser" : Navigator.ext.NavController.open_in_browser,
-        "update_td_pars" : Navigator.ext.NavController.update_td_pars
-    }
-    action_map_func = action_map.get(action)
-    return action_map_func
+    func = None
 
-def Web_action(qs_result):
+    try :
+        func = getattr(webACTIONS, action)
+    
+    except Exception as e:
+        print(e)
+
+    return func
+
+def Web_action(qs_result:dict) -> None:
     '''
     Action Runner - tries to run the requested web-action
 
@@ -48,13 +44,12 @@ def Web_action(qs_result):
 
     '''
 
-    try:
-        func = _web_action_map(qs_result.get('action')[0])
-        func(qs_result)
+    func = _get_action(qs_result.get('action')[0])
     
-    except Exception as e:
-        if debug:
-            debug(e)
-        else:
-            pass       
+    if func != None:
+        func(qs_result)
+
+    else:
+        raise ValueError("TD Navigator | No matching function found for action")
+
     return 
