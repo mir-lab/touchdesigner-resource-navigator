@@ -1,4 +1,7 @@
 """Actions Parser
+
+Parsing mechanics and function-lookup map for handling incoming 
+query string requests.
 """
 
 

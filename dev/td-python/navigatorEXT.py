@@ -2,28 +2,6 @@ import urllib.request
 import parserActionsMOD
 import paneControlsMOD
 
-"""Action Specifications
-
-query string formated commands that can be interpreted by TouchDesigner
-to drive scripts and actions in TD.
-
-Query strings require the following args:
-
-* actionable:bool
-* action:string (function name)
-* keyWordArgsDefinedByFunction:value
-
-
-examples:
-?actionable=1&action=load_tox&remotePath=someUrl
-
-?actionable=1&action=open_floating_network
-
-?actionable=1&action=open_in_browser
-
-?actionable=1&action=update_td_pars&somePar=someVal
-"""
-
 class NavController:
     """
     Extension for managing the Curriculum Navigator
@@ -41,8 +19,8 @@ class NavController:
     component context, ensuring that fetched examples are always the 
     most recently updated.
 
-    debug() is largely preferred over print() in this extension, relyling on the 
-    Navigator COMP's Debug parmaeter to control outputting messages to the 
+    debug() is largely preferred over print() in this extension, relying on the 
+    Navigator COMP's Debug parameter to control outputting messages to the 
     text-port. 
 
     Navigator loading and web-interaction is driven by a query string model 
@@ -50,21 +28,22 @@ class NavController:
     Query string parsing is handled by the Python built-in library urllib to provide
     for simplified support across platforms.
 
-    This extension is organized into blocks with respective areas of focus:
-    - ACTIONS Parser
+    This extension utilizes additional modules that have been broken out of the main
+    extension:
+
+    - parserActionsMOD
         Parsing mechanics and function-lookup map for handling incoming 
         query string requests.
 
-    - ACTIONS
+    - paneControlsMOD
+        Controls for pane manipulation
+
+    - webACTIONS
         Supported actions parsable from query strings
         Currently all actions accept a singe arg - query string (qs_string) - 
         passing responsibility for handing the qs_string object to the called
         function. This matches a similar pattern found in lister, where a single
         info object is reliably passed to functions.
-
-    - Timer Functions
-        Consolidated location for handling timer callbacks, reducing the number of 
-        places where python code may need to be updated.
     """
 
     NavigatorCOMP = parent.Navigator
@@ -89,7 +68,7 @@ class NavController:
         Args
         ---------------
         ownerOp (TD_operator)
-        > The TouchDesigner operator initialzing this ext, usually `me`
+        > The TouchDesigner operator initialling this ext, usually `me`
         
         """
         
@@ -100,7 +79,7 @@ class NavController:
 
     def Url_update(self, url):
         """
-        Updates webrender TOP URL
+        Updates webRender TOP URL
 
         Args
         ---------------
@@ -140,7 +119,7 @@ class NavController:
         """
 
         if NavController.nav_debug.eval():
-            debug("remove QS from Path")
+            debug("TD NAVIGATOR | remove QS from Path")
 
         address = NavController.web_browser.par.Address.eval()
         cleanAddress = self.clean_url(address)
@@ -172,7 +151,7 @@ class NavController:
         """
 
         if NavController.nav_debug.eval():
-            debug("loading new selection")
+            debug("TD NAVIGATOR | loading new selection")
 
         self.Set_view(True, "panel")
 
@@ -186,7 +165,7 @@ class NavController:
         """
 
         if NavController.nav_debug.eval():
-            debug("starting timer")
+            debug("TD NAVIGATOR | starting timer")
 
         NavController.trans_timer.par.active = True
         NavController.trans_timer.par.start.pulse()
@@ -213,7 +192,7 @@ class NavController:
 
         except Exception as e:
             if NavController.nav_debug.eval():
-                debug(e)
+                debug(f"TD NAVIGATOR | {e}")
             else:
                 pass
 
@@ -289,9 +268,24 @@ class NavController:
         """
         Send JS command to browser on load
         """
-        NavController.web_browser.par.Javascript = "document.getElementsByClassName('td-navigator-shown')[0].classList.remove('td-navigator-shown')"
-        run('parent.Navigator.op("container_ui/container_nav_and_text").op("webBrowser").par.Sendjavascript.pulse()')
+        delay_hide = "args[0]._hide_td_nav_buttons()"
+        run(delay_hide, self, delayFrames = 0)
+
+        delay_show = "args[0]._show_td_have_buttons()"
+        run(delay_show, self, delayFrames=1)
         pass
+
+    def _hide_td_nav_buttons(self):
+        """Hides buttons with flag
+        """
+        NavController.web_browser.par.Javascript = "document.getElementsByClassName('td-navigator-shown')[0].classList.remove('td-navigator-shown')"
+        run('args[0].op("container_ui/container_nav_and_text").op("webBrowser").par.Sendjavascript.pulse()', parent.Navigator)    
+
+    def _show_td_have_buttons(self):
+        """Hides buttons with flag
+        """
+        NavController.web_browser.par.Javascript = "document.getElementsByClassName('td-navigator-hidden')[0].classList.add('td-navigator-shown')"
+        run('args[0].op("container_ui/container_nav_and_text").op("webBrowser").par.Sendjavascript.pulse()', parent.Navigator)
 
     def Comment_focus_change(self, menu_index):
         """Sets focus network view focus to selected comment
@@ -305,7 +299,7 @@ class NavController:
         par_val = par.eval()
 
         open_panes = self._navigator_open
-        print(f"navigator open | {open_panes}")
+        print(f"TD NAVIGATOR | navigator open - {open_panes}")
         
         for each_pane in open_panes:
             if each_pane in nav_panes:
@@ -354,14 +348,14 @@ class NavController:
         if nav_header_present:
             op('/ui/panes/panebar/Navigator').destroy()            
             if parent.Navigator.par.Debug:
-                debug("destroying previous nav_header")
+                debug("TD NAVIGATOR | destroying previous nav_header")
         else:
             pass
 
         if nav_example_header_present:
             op('/ui/panes/panebar/NavigatorExample').destroy()
             if parent.Navigator.par.Debug:
-                debug("destroying previous nav_example_header")
+                debug("TD NAVIGATOR | destroying previous nav_example_header")
         else:
             pass
 
@@ -369,7 +363,7 @@ class NavController:
         self._copy_pane_asset(NavController.nav_example_header, 200, -200)
 
     def _copy_pane_asset(self, asset, nodeX, nodeY):
-        print(f"copying asset {asset}")
+        print(f"TD NAVIGATOR | copying asset {asset}")
         new_pane_asset = op('/ui/panes/panebar').copy(asset)
         new_pane_asset.nodeX = nodeX
         new_pane_asset.nodeY = nodeY

@@ -12,7 +12,6 @@ def Zoom_update(zoom_level) -> None:
     zoom_level (int)
     > The target zoom level for the webrender TOP
     """
-    print(f"document.body.style.zoom = '{zoom_level}%'")
     Navigator.ext.NavController.web_browser.op('webrender1').executeJavaScript(f"document.body.style.zoom = '{zoom_level}%'")
 
 def Zoom_increment(increment_val) -> None:

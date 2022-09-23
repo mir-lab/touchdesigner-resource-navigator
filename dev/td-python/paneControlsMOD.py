@@ -1,13 +1,7 @@
 """Pane Controls
+
+Controls for pane manipulation
 """
-
-# allows all type hints to be imported as strings by default
-from __future__ import annotations
-
-# allows for type checking without circular imports
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    import navigatorEXT
 
 # global op shortcut to TouchDesigner Curriculum Navigator
 Navigator = op.TDCN
@@ -22,7 +16,7 @@ def Save_tox_copy(par):
     This is called from the navigator "Save" Button
     """
     if par.eval():
-        print("Save TOX copy")
+        print("TD NAVIGATOR | Save TOX copy")
 
         disp_buffer = Navigator.disp_buffer
         current_example = disp_buffer.findChildren(type=containerCOMP)[0]
@@ -77,29 +71,32 @@ def _copy_current_example(example):
     copied_tox.nodeY = 200
     return copied_tox
 
-def Win_close():
+def Win_close() -> None:
     ui.panes['Navigator'].close()
     ui.panes['NavigatorExample'].close()
 
-def Open_floating():
+def Open_floating() -> None:
     """
     Opens Floating Network Window
     
     Args
     ---------------
-    qs_results (query_string obj)
-    > query string from ULR, contains all necessary args and vals
+    None
+
+
     """
 
     if Navigator.ext.NavController.nav_debug.eval():
-        debug("Open Floating Window")
+        debug("TD NAVIGATOR | Open Floating Window")
     floating_pane = ui.panes.createFloating(name="Example")
     current_example = Navigator.ext.NavController.get_current_example()
     floating_pane.owner = current_example
     floating_pane.home()
 
-
 def Comment_focus_change(menu_index:int) -> None:
+    """
+
+    """
     current_example = Navigator.Current_example
 
     comments = current_example.findChildren(type=annotateCOMP, depth=1)
@@ -115,4 +112,5 @@ def Comment_focus_change(menu_index:int) -> None:
     
     else:
         Set_view(True, 'network')
-        ui.panes['NavigatorExample'].homeSelected() 
+        ui.panes['NavigatorExample'].homeSelected()
+

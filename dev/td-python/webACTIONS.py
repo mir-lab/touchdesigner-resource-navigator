@@ -1,10 +1,16 @@
 """Web Actions
 
+Supported actions parsable from query strings
+Currently all actions accept a singe arg - query string (qs_string) - 
+passing responsibility for handing the qs_string object to the called
+function. This matches a similar pattern found in lister, where a single
+info object is reliably passed to functions.
+
 #################################
 ##### Action Specifications #####
 #################################
 
-query string formated commands that can be interpreted by TouchDesigner
+query string formatted commands that can be interpreted by TouchDesigner
 to drive scripts and actions in TD.
 
 Query strings require the following args:
@@ -25,7 +31,7 @@ examples:
 
 Navigator = op.TDCN
 
-def load_tox(qs_results:dict):
+def load_tox(qs_results:dict) -> None:
     """
     Load TOX from URL
 
@@ -33,10 +39,14 @@ def load_tox(qs_results:dict):
     ---------------
     qs_results (query_string obj)
     > query string from ULR, contains all necessary args and vals
+    
+    Returns
+    ---------------
+    None
     """
 
     if Navigator.ext.NavController.nav_debug.eval():
-        debug("loading remote")
+        debug("TD NAVIGATOR | loading remote")
 
     remote_tox = qs_results.get('remotePath')
     Navigator.ext.NavController.selected_remote_tox = remote_tox[0]
@@ -44,18 +54,22 @@ def load_tox(qs_results:dict):
     Navigator.ext.NavController.remove_qs_from_path() 
     pass
 
-def open_floating_network(qs_results:dict):
+def open_floating_network(qs_results:dict) -> None:
     """
     Opens Floating Network Window
     
     Args
     ---------------
-    qs_results (query_string obj)
+    qs_results (`dict`)
     > query string from ULR, contains all necessary args and vals
+    
+    Returns
+    ---------------
+    None
     """
 
     if Navigator.ext.NavController.nav_debug.eval():
-        debug("Open Floating Window")
+        debug("TD NAVIGATOR | Open Floating Window")
     floating_pane = ui.panes.createFloating(name="Example")
     current_example = Navigator.ext.NavController.get_current_example()
     floating_pane.owner = current_example
@@ -64,29 +78,36 @@ def open_floating_network(qs_results:dict):
     Navigator.ext.NavController.remove_qs_from_path()
     pass
 
-def open_in_browser(qs_results:dict):
+def open_in_browser(qs_results:dict) -> None:
     """
     Open URL in web browser
     
     Args
     ---------------
-    qs_results (query_string obj)
+    qs_results (`dict`)
     > query string from ULR, contains all necessary args and vals
 
+    Returns
+    ---------------
+    None
     """
 
     address = Navigator.ext.NavController.web_browser.par.Address.eval()
     ui.viewFile(address)
     Navigator.ext.NavController.remove_qs_from_path()
 
-def update_td_pars(qs_results:dict):
+def update_td_pars(qs_results:dict) -> None:
     """
     Update TD parameters
     
     Args
     ---------------
-    qs_results (query_string obj)
+    qs_results (`dict`)
     > query string from ULR, contains all necessary args and vals
+
+    Returns
+    ---------------
+    None
     """
 
     target_op = Navigator.ext.NavController.get_current_example()
@@ -101,7 +122,7 @@ def update_td_pars(qs_results:dict):
                 pass
         
         if Navigator.ext.NavController.nav_debug.eval():
-            debug(each_par, each_val)
+            debug(f"TD NAVIGATOR | {each_par}, {each_val}")
 
     Navigator.ext.NavController.remove_qs_from_path()
     pass
