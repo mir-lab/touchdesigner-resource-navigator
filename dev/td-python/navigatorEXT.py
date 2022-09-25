@@ -1,4 +1,5 @@
 import urllib.request
+import requests as Requests
 import parserActionsMOD
 import paneControlsMOD
 
@@ -180,8 +181,8 @@ class NavController:
 
         try:
 
-            asset = urllib.request.urlopen(remoteTox)
-            tox = asset.read()
+            asset = Requests.get(remoteTox)
+            tox = asset.content
             loadedTox = NavController.disp_buffer.loadByteArray(tox)
             loadedTox.par['display'] = True
             loadedTox.nodeX = 0
