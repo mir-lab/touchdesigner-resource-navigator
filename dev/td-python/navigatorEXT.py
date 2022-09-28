@@ -120,7 +120,7 @@ class NavController:
         """
 
         if NavController.nav_debug.eval():
-            debug("TD NAVIGATOR | remove QS from Path")
+            debug("🧭 TD Navigator | remove QS from Path")
 
         address = NavController.web_browser.par.Address.eval()
         cleanAddress = self.clean_url(address)
@@ -152,7 +152,7 @@ class NavController:
         """
 
         if NavController.nav_debug.eval():
-            debug("TD NAVIGATOR | loading new selection")
+            debug("🧭 TD Navigator | loading new selection")
 
         self.Set_view(True, "panel")
 
@@ -166,7 +166,7 @@ class NavController:
         """
 
         if NavController.nav_debug.eval():
-            debug("TD NAVIGATOR | starting timer")
+            debug("🧭 TD Navigator | starting timer")
 
         NavController.trans_timer.par.active = True
         NavController.trans_timer.par.start.pulse()
@@ -193,7 +193,7 @@ class NavController:
 
         except Exception as e:
             if NavController.nav_debug.eval():
-                debug(f"TD NAVIGATOR | {e}")
+                debug(f"🧭 TD Navigator | {e}")
             else:
                 pass
 
@@ -300,7 +300,7 @@ class NavController:
         par_val = par.eval()
 
         open_panes = self._navigator_open
-        print(f"TD NAVIGATOR | navigator open - {open_panes}")
+        print(f"🧭 TD Navigator | navigator open - {open_panes}")
         
         for each_pane in open_panes:
             if each_pane in nav_panes:
@@ -349,14 +349,14 @@ class NavController:
         if nav_header_present:
             op('/ui/panes/panebar/Navigator').destroy()            
             if parent.Navigator.par.Debug:
-                debug("TD NAVIGATOR | destroying previous nav_header")
+                debug("🧭 TD Navigator | destroying previous nav_header")
         else:
             pass
 
         if nav_example_header_present:
             op('/ui/panes/panebar/NavigatorExample').destroy()
             if parent.Navigator.par.Debug:
-                debug("TD NAVIGATOR | destroying previous nav_example_header")
+                debug("🧭 TD Navigator | destroying previous nav_example_header")
         else:
             pass
 
@@ -364,7 +364,7 @@ class NavController:
         self._copy_pane_asset(NavController.nav_example_header, 200, -200)
 
     def _copy_pane_asset(self, asset, nodeX, nodeY):
-        print(f"TD NAVIGATOR | copying asset {asset}")
+        print(f"🧭 TD Navigator | copying asset {asset}")
         new_pane_asset = op('/ui/panes/panebar').copy(asset)
         new_pane_asset.nodeX = nodeX
         new_pane_asset.nodeY = nodeY

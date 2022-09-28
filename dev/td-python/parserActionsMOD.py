@@ -53,6 +53,6 @@ def Web_action(qs_result:dict) -> None:
         func(qs_result)
 
     else:
-        raise ValueError("TD Navigator | No matching function found for action")
+        raise ValueError("🧭 TD Navigator | No matching function found for action")
 
     return 
