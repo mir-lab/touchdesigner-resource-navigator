@@ -16,7 +16,7 @@ def Save_tox_copy(par):
     This is called from the navigator "Save" Button
     """
     if par.eval():
-        print("TD NAVIGATOR | Save TOX copy")
+        print("🧭 TD Navigator | Save TOX copy")
 
         disp_buffer = Navigator.disp_buffer
         current_example = disp_buffer.findChildren(type=containerCOMP)[0]
@@ -87,7 +87,7 @@ def Open_floating() -> None:
     """
 
     if Navigator.ext.NavController.nav_debug.eval():
-        debug("TD NAVIGATOR | Open Floating Window")
+        debug("🧭 TD Navigator | Open Floating Window")
     floating_pane = ui.panes.createFloating(name="Example")
     current_example = Navigator.ext.NavController.get_current_example()
     floating_pane.owner = current_example
@@ -97,20 +97,26 @@ def Comment_focus_change(menu_index:int) -> None:
     """
 
     """
-    current_example = Navigator.Current_example
-
-    comments = current_example.findChildren(type=annotateCOMP, depth=1)
-    target_op = current_example.par.Comments.menuNames[menu_index]
+    #skip when menu_index is '' 
+    if menu_index == '':
+        pass
     
-    op(target_op).current = True
-
-    for each_annotate in comments:
-        each_annotate.selected = False
-
-    if ui.panes['NavigatorExample'].type == PaneType.NETWORKEDITOR:
-        ui.panes['NavigatorExample'].homeSelected()
-    
+    # action based on menu index
     else:
-        Set_view(True, 'network')
-        ui.panes['NavigatorExample'].homeSelected()
+        current_example = Navigator.Current_example
+
+        comments = current_example.findChildren(type=annotateCOMP, depth=1)
+        target_op = current_example.par.Comments.menuNames[menu_index]
+        
+        op(target_op).current = True
+
+        for each_annotate in comments:
+            each_annotate.selected = False
+
+        if ui.panes['NavigatorExample'].type == PaneType.NETWORKEDITOR:
+            ui.panes['NavigatorExample'].homeSelected()
+        
+        else:
+            Set_view(True, 'network')
+            ui.panes['NavigatorExample'].homeSelected()
 
