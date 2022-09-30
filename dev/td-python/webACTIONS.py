@@ -46,7 +46,7 @@ def load_tox(qs_results:dict) -> None:
     """
 
     if Navigator.ext.NavController.nav_debug.eval():
-        debug("TD NAVIGATOR | loading remote")
+        debug("🧭 TD Navigator | loading remote")
 
     remote_tox = qs_results.get('remotePath')
     Navigator.ext.NavController.selected_remote_tox = remote_tox[0]
@@ -69,7 +69,7 @@ def open_floating_network(qs_results:dict) -> None:
     """
 
     if Navigator.ext.NavController.nav_debug.eval():
-        debug("TD NAVIGATOR | Open Floating Window")
+        debug("🧭 TD Navigator | Open Floating Window")
     floating_pane = ui.panes.createFloating(name="Example")
     current_example = Navigator.ext.NavController.get_current_example()
     floating_pane.owner = current_example
@@ -122,7 +122,7 @@ def update_td_pars(qs_results:dict) -> None:
                 pass
         
         if Navigator.ext.NavController.nav_debug.eval():
-            debug(f"TD NAVIGATOR | {each_par}, {each_val}")
+            debug(f"🧭 TD Navigator | {each_par}, {each_val}")
 
     Navigator.ext.NavController.remove_qs_from_path()
     pass
