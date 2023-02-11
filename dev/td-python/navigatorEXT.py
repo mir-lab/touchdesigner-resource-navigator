@@ -69,18 +69,21 @@ class NavController:
         Args
         ---------------
         ownerOp (TD_operator)
-        > The TouchDesigner operator initialling this ext, usually `me`
-        
-        """
+        > The TouchDesigner operator initialzing this ext, usually `me`
+
+        Returns
+        ---------------
+        None        
+        '''
         
         self.Owner_op = ownerOp
         self.selected_remote_tox = None
         self._check_pane_assets()
 
 
-    def Url_update(self, url):
-        """
-        Updates webRender TOP URL
+    def Url_update(self, url) -> None:
+        '''
+        Updates webrender TOP URL
 
         Args
         ---------------
