@@ -1,0 +1,12 @@
+name: Resource-Navigator
+tdVersion: 2025.31740.Project
+tdPackages:
+    - package: github.com/SudoMagicCode/td-comp-icon
+      releaseTag: v1.1.6
+    - package: github.com/SudoMagicCode/TD-TOX-Saver
+      releaseTag: v1.0.9
+    - package: github.com/SudoMagicCode/td-annotation-controller
+      releaseTag: v0.0.2
+    - package: github.com/SudoMagicCode/td-annotation-formatter
+      releaseTag: v0.0.7
+pythonRequirements: []

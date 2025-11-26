@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"name": "TD Python",
+			"path": "../src/TouchDesigner/td-python"
+		},
+	],
+	"settings": {
+		"files.exclude": {}
+	}
+}

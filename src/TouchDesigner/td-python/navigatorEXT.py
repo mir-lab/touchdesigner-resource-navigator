@@ -3,6 +3,7 @@ import requests as Requests
 import parserActionsMOD
 import paneControlsMOD
 
+
 class NavController:
     """
     Extension for managing the Curriculum Navigator
@@ -16,15 +17,15 @@ class NavController:
     The NavController uses the webBrowser palette component to render
     a rich text experience alongside a TouchDesigner example. The Navigator component
     loads and fetches a TOX from a remote source, and loads it dynamically into
-    a lightweight shell experience. This keeps all TOX elements outside of the 
-    component context, ensuring that fetched examples are always the 
+    a lightweight shell experience. This keeps all TOX elements outside of the
+    component context, ensuring that fetched examples are always the
     most recently updated.
 
-    debug() is largely preferred over print() in this extension, relying on the 
-    Navigator COMP's Debug parameter to control outputting messages to the 
-    text-port. 
+    debug() is largely preferred over print() in this extension, relying on the
+    Navigator COMP's Debug parameter to control outputting messages to the
+    text-port.
 
-    Navigator loading and web-interaction is driven by a query string model 
+    Navigator loading and web-interaction is driven by a query string model
     for providing data to the webBrowser context to be interpreted by TouchDesigner.
     Query string parsing is handled by the Python built-in library urllib to provide
     for simplified support across platforms.
@@ -33,7 +34,7 @@ class NavController:
     extension:
 
     - parserActionsMOD
-        Parsing mechanics and function-lookup map for handling incoming 
+        Parsing mechanics and function-lookup map for handling incoming
         query string requests.
 
     - paneControlsMOD
@@ -41,7 +42,7 @@ class NavController:
 
     - webACTIONS
         Supported actions parsable from query strings
-        Currently all actions accept a singe arg - query string (qs_string) - 
+        Currently all actions accept a singe arg - query string (qs_string) -
         passing responsibility for handing the qs_string object to the called
         function. This matches a similar pattern found in lister, where a single
         info object is reliably passed to functions.
@@ -50,11 +51,16 @@ class NavController:
     NavigatorCOMP = parent.Navigator
     view = parent.Navigator.op('container_ui/container_view')
     nav_and_text = parent.Navigator.op('container_ui/container_nav_and_text')
-    web_browser = parent.Navigator.op('container_ui/container_nav_and_text/webBrowser')
-    loading_view = parent.Navigator.op('container_ui/container_view/container_loading')
-    settings_view = parent.Navigator.op('container_ui/container_view/container_settings')
-    disp_buffer = parent.Navigator.op('container_ui/container_view/container_display_buffer')
-    trans_timer = parent.Navigator.op('container_ui/container_view/container_loading/timer1')
+    web_browser = parent.Navigator.op(
+        'container_ui/container_nav_and_text/webBrowser')
+    loading_view = parent.Navigator.op(
+        'container_ui/container_view/container_loading')
+    settings_view = parent.Navigator.op(
+        'container_ui/container_view/container_settings')
+    disp_buffer = parent.Navigator.op(
+        'container_ui/container_view/container_display_buffer')
+    trans_timer = parent.Navigator.op(
+        'container_ui/container_view/container_loading/timer1')
 
     nav_debug = parent.Navigator.par.Debug
 
@@ -62,37 +68,35 @@ class NavController:
     nav_example_header = parent.Navigator.op('base_assets/NavigatorExample')
 
     def __init__(self, ownerOp):
-        """
-        EXT Init 
-
+        '''
+        EXT Init
 
         Args
         ---------------
-        ownerOp (TD_operator)
-        > The TouchDesigner operator initialzing this ext, usually `me`
+        ownerOp(TD_operator)
+        > The TouchDesigner operator initializing this ext, usually `me`
 
         Returns
         ---------------
-        None        
+        None
         '''
-        
+
         self.Owner_op = ownerOp
         self.selected_remote_tox = None
         self._check_pane_assets()
 
-
-    def Url_update(self, url) -> None:
+    def Url_update(self, urlRef: str) -> None:
         '''
         Updates webrender TOP URL
 
         Args
         ---------------
-        url (str)
+        url(str)
         > The URL from the webBrowser COMP
 
-        """
+        '''
 
-        qs_result = self.query_string_parse(url)
+        qs_result = self.query_string_parse(urlRef)
         key_list = [key for key in qs_result.keys()]
 
         # check for the actionable arg
@@ -113,7 +117,8 @@ class NavController:
         > The current component loaded in the Navigator's display buffer COMP
         """
 
-        current_example = parent.Navigator.op('container_ui/container_view/container_display_buffer').findChildren(depth=1)[0]
+        current_example = parent.Navigator.op(
+            'container_ui/container_view/container_display_buffer').findChildren(depth=1)[0]
         return current_example
 
     def remove_qs_from_path(self):
@@ -128,7 +133,7 @@ class NavController:
         address = NavController.web_browser.par.Address.eval()
         cleanAddress = self.clean_url(address)
         NavController.web_browser.par.Address = cleanAddress
-    
+
     def clean_url(self, url):
         """
         Clean up a URL
@@ -187,11 +192,15 @@ class NavController:
             asset = Requests.get(remoteTox)
             tox = asset.content
             loadedTox = NavController.disp_buffer.loadByteArray(tox)
-            loadedTox.par['display'] = True
             loadedTox.nodeX = 0
             loadedTox.nodeY = 0
-            loadedTox.par.hmode = 1
-            loadedTox.par.vmode = 1
+            if loadedTox.isPanel:
+                loadedTox.par['display'] = True
+                loadedTox.par.hmode = 1
+                loadedTox.par.vmode = 1
+            else:
+                pass
+            NavController.disp_buffer.par.opviewer = loadedTox.path
             self.update_browser()
 
         except Exception as e:
@@ -226,9 +235,10 @@ class NavController:
         """
         Toggle display par for settings
         """
-        NavController.settings_view.par.display = (0 if NavController.settings_view.par.display else 1)
+        NavController.settings_view.par.display = (
+            0 if NavController.settings_view.par.display else 1)
 
-    def query_string_parse(self, url:str) -> str:
+    def query_string_parse(self, url: str) -> str:
         """
         Parse query string
 
@@ -260,7 +270,8 @@ class NavController:
         """
 
         self.clear_view()
-        default = parent.Navigator.op('container_ui/container_view/container_loading/container_start')
+        default = parent.Navigator.op(
+            'container_ui/container_view/container_loading/container_start')
         copy_op = NavController.disp_buffer.copy(default)
         copy_op.nodeX = 0
         copy_op.nodeY = 0
@@ -273,7 +284,7 @@ class NavController:
         Send JS command to browser on load
         """
         delay_hide = "args[0]._hide_td_nav_buttons()"
-        run(delay_hide, self, delayFrames = 0)
+        run(delay_hide, self, delayFrames=0)
 
         delay_show = "args[0]._show_td_have_buttons()"
         run(delay_show, self, delayFrames=1)
@@ -283,7 +294,7 @@ class NavController:
         """Hides buttons with flag
         """
         NavController.web_browser.par.Javascript = "document.getElementsByClassName('td-navigator-shown')[0].classList.remove('td-navigator-shown')"
-        run('args[0].op("container_ui/container_nav_and_text").op("webBrowser").par.Sendjavascript.pulse()', parent.Navigator)    
+        run('args[0].op("container_ui/container_nav_and_text").op("webBrowser").par.Sendjavascript.pulse()', parent.Navigator)
 
     def _show_td_have_buttons(self):
         """Hides buttons with flag
@@ -297,14 +308,14 @@ class NavController:
         paneControlsMOD.Comment_focus_change(menu_index)
 
     def Floating_window(self, par):
-        #TODO - add some pane clean-up
+        # TODO - add some pane clean-up
 
         nav_panes = ['Navigator', 'NavigatorExample']
         par_val = par.eval()
 
         open_panes = self._navigator_open
         print(f"🧭 TD Navigator | navigator open - {open_panes}")
-        
+
         for each_pane in open_panes:
             if each_pane in nav_panes:
                 try:
@@ -312,11 +323,11 @@ class NavController:
                 except Exception as e:
                     pass
 
-        # borrowed from Snippets on demand 
+        # borrowed from Snippets on demand
         nav_text = ui.panes.createFloating(
-            maxWidth=monitors.primary.width, 
-            maxHeight=monitors.primary.height, 
-            monitorSpanWidth=0.9, 
+            maxWidth=monitors.primary.width,
+            maxHeight=monitors.primary.height,
+            monitorSpanWidth=0.9,
             monitorSpanHeight=0.9)
 
         nav_text.owner = NavController.nav_and_text
@@ -339,18 +350,18 @@ class NavController:
     @property
     def _pane_names(self):
         return [each_op.name for each_op in op('/ui/panes/panebar').findChildren(type=containerCOMP)]
-    
+
     @property
     def _navigator_open(self):
         return [each.name for each in ui.panes]
 
     def _check_pane_assets(self):
         nav_header_present = NavController.nav_header.name in self._pane_names
-        nav_example_header_present =  NavController.nav_example_header.name in self._pane_names
+        nav_example_header_present = NavController.nav_example_header.name in self._pane_names
 
         # copy nav and nav_example headers if they don't exist in pane assets
         if nav_header_present:
-            op('/ui/panes/panebar/Navigator').destroy()            
+            op('/ui/panes/panebar/Navigator').destroy()
             if parent.Navigator.par.Debug:
                 debug("🧭 TD Navigator | destroying previous nav_header")
         else:
@@ -372,7 +383,7 @@ class NavController:
         new_pane_asset.nodeX = nodeX
         new_pane_asset.nodeY = nodeY
 
-    #NOTE : pane controls
+    # NOTE : pane controls
     def Save_tox_copy(self, par):
         paneControlsMOD.Save_tox_copy(par)
 
@@ -382,8 +393,8 @@ class NavController:
     def Win_close(self):
         paneControlsMOD.Win_close()
 
-    #NOTE : parses and uses actions from the web
-    def Actions_from_web(self, qs_results:dict) -> None:
+    # NOTE : parses and uses actions from the web
+    def Actions_from_web(self, qs_results: dict) -> None:
         """Launches Actions
 
         Forwards query string results to parserActionsMOD
